@@ -1,0 +1,21 @@
+/* The accent blues come from the kakemono app (crates/ui/frontend/src/shared/tokens.css):
+   #0a64d6 in light mode, #3b8eea in dark mode. */
+:root {
+	--sl-color-accent-low: #0b2647;
+	--sl-color-accent: #3b8eea;
+	--sl-color-accent-high: #c4ddfa;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #d6e6fb;
+	--sl-color-accent: #0a64d6;
+	--sl-color-accent-high: #08367a;
+}
+
+/* The demo GIF on the home page: rounded like a window, with a soft shadow. */
+.demo {
+	border-radius: 0.75rem;
+	box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.25);
+	width: 100%;
+	height: auto;
+}

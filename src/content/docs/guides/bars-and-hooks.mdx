@@ -1,0 +1,424 @@
+---
+title: Bars and hooks
+description: Run a command after every wallpaper change, and add a kakemono item to sketchybar or waybar.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+A hook is a command that the kakemono daemon runs after every wallpaper change. kakemono ships complete bar items for [sketchybar](#sketchybar-on-macos) and [waybar](#waybar-on-linux) that use the hook.
+
+## Run a command after every wallpaper change
+
+Set `on_change` in the `[hooks]` section of your config. To see which file kakemono reads, run `kakemono config path`.
+
+```toml
+[hooks]
+# sketchybar (macOS). The `kakemono service install` daemon has Homebrew on its PATH; from
+# other launchers, use the full path (`command -v sketchybar`).
+on_change = ["sketchybar", "--trigger", "wallpaper_changed"]
+# waybar (Linux)
+# on_change = ["pkill", "-RTMIN+8", "waybar"]
+```
+
+The daemon reads the config when it starts. After you add the hook, restart the daemon or send it [`reload`](/reference/socket/).
+
+## How the hook runs
+
+The hook runs after every wallpaper change: a timed rotation, `next`, `prev`, `set`, `trash`, or a light or dark switch with `rotate_on_theme_change` on. Pause and resume don't change the wallpaper, so the hook doesn't run for them.
+
+`on_change` is an argv array, or a string that kakemono splits like a shell would. kakemono runs it without a shell and doesn't wait for it. A hook that fails or runs longer than 10 seconds is logged as a warning and does not affect the wallpaper. At most 4 hooks run at once.
+
+The hook gets these environment variables from kakemono:
+
+- `KAKEMONO_PATH`
+- `KAKEMONO_SOURCE`
+- `KAKEMONO_TITLE`
+- `KAKEMONO_AUTHOR`
+- `KAKEMONO_SOURCE_URL`
+- `KAKEMONO_THEME`
+
+It also gets `PATH`, `HOME`, `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, and `DBUS_SESSION_BUS_ADDRESS` from the daemon. The daemon clears every other variable.
+
+The arguments can use the placeholders `{path}`, `{uri}`, `{fit}`, and `{theme}`.
+
+A script can read the environment variables instead of calling `kakemono status`.
+
+## sketchybar on macOS
+
+The [sketchybar files](https://github.com/RielJ/kakemono/tree/main/contrib/sketchybar) add a wallpaper item to [sketchybar](https://github.com/FelixKratz/SketchyBar). The item shows the title, or the source, of the current wallpaper. It also shows a moon or sun for the theme, and a pause mark while rotation is paused. Click the item to open a popup with **Next**, **Previous**, **Favorite**, **Trash**, **Pause/Resume**, and **Settings**.
+
+The item updates when the daemon runs its `on_change` hook, which fires the sketchybar event `wallpaper_changed`.
+
+| File | What it does |
+|---|---|
+| `sketchybarrc.sh` | Adds the `wallpaper_changed` event, the `wallpaper` item, and the popup buttons. |
+| `plugins/wallpaper.sh` | Reads `kakemono status --json` and sets the item's label. |
+| `plugins/wallpaper_popup.sh` | Runs `kakemono next`, `prev`, `favorite`, `trash`, `pause`, `resume`, or `settings` for the clicked button. |
+
+### Set up the sketchybar item
+
+You need sketchybar, `jq`, and the `kakemono` binary. To install kakemono, see [Install](/getting-started/install/). The commands below run from a clone of the [kakemono repository](https://github.com/RielJ/kakemono).
+
+<Steps>
+
+1. Install sketchybar and `jq`:
+
+   ```sh
+   brew install sketchybar jq
+   ```
+
+2. Copy the plugins to your sketchybar plugin directory:
+
+   ```sh
+   PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+   mkdir -p "$PLUGIN_DIR"
+   cp contrib/sketchybar/plugins/wallpaper.sh contrib/sketchybar/plugins/wallpaper_popup.sh "$PLUGIN_DIR/"
+   chmod +x "$PLUGIN_DIR/wallpaper.sh" "$PLUGIN_DIR/wallpaper_popup.sh"
+   ```
+
+3. Add the item to `~/.config/sketchybar/sketchybarrc`. Either paste the contents of `contrib/sketchybar/sketchybarrc.sh`, or copy the file and source it:
+
+   ```sh
+   cp contrib/sketchybar/sketchybarrc.sh "$HOME/.config/sketchybar/wallpaper.sh"
+   echo 'source "$HOME/.config/sketchybar/wallpaper.sh"' >> "$HOME/.config/sketchybar/sketchybarrc"
+   ```
+
+4. If you haven't yet, install the daemon as a login service:
+
+   ```sh
+   kakemono service install
+   ```
+
+   The service runs the daemon with `/opt/homebrew/bin` and `/usr/local/bin` on its `PATH`, so it finds a Homebrew `sketchybar`. A plist from an earlier kakemono version has no `PATH`. To rewrite it, run `kakemono service install` again.
+
+5. Add the hook to your kakemono config:
+
+   ```toml
+   [hooks]
+   on_change = ["sketchybar", "--trigger", "wallpaper_changed"]
+   ```
+
+   If you run the daemon another way, its `PATH` may not include Homebrew. An example is `kakemono daemon -f` from a script or another launcher. In that case, use the full path that `command -v sketchybar` prints, such as `/opt/homebrew/bin/sketchybar`.
+
+6. Restart the daemon so that it reads the new `[hooks]` section:
+
+   ```sh
+   launchctl kickstart -k "gui/$(id -u)/dev.rielj.kakemono.daemon"
+   ```
+
+   If you started the daemon yourself with `kakemono daemon`, stop that process and start it again.
+
+7. Reload sketchybar:
+
+   ```sh
+   sketchybar --reload
+   ```
+
+8. Run `kakemono next`. The label changes when the new wallpaper is set.
+
+</Steps>
+
+### How the sketchybar item works
+
+- `wallpaper.sh` runs `kakemono status --json` and builds the label from `.current.title`, `.current.source`, `.paused`, and `.theme`. When the daemon isn't running, `status` exits with code 1, and the label shows "No daemon".
+- The hook doesn't run for pause and resume, so `wallpaper_popup.sh` fires `wallpaper_changed` itself after it pauses or resumes.
+
+### Customize the sketchybar item
+
+- If the `PATH` of sketchybar doesn't include `kakemono`, set `KAKEMONO` to the full path at the top of both plugin scripts, for example `KAKEMONO=/usr/local/bin/kakemono`.
+- To change the icon, edit `icon="🖼"` in `sketchybarrc.sh` and `wallpaper.sh`.
+- To move the item, change `right` to `left` or `center` in `sketchybar --add item wallpaper right`.
+- To change the label length, edit `${TITLE:0:25}` in `wallpaper.sh`.
+
+### The sketchybar files
+
+[`sketchybarrc.sh`](https://github.com/RielJ/kakemono/blob/main/contrib/sketchybar/sketchybarrc.sh):
+
+```sh title="sketchybarrc.sh"
+#!/usr/bin/env bash
+# sketchybarrc.sh: drop-in snippet to add the wallpaper item to sketchybar.
+# Source this file from your main sketchybarrc, or copy the relevant lines.
+#
+# Requirements:
+#   - the kakemono daemon is running (`kakemono service install` starts it at login)
+#   - jq is installed
+#   - wallpaper.sh and wallpaper_popup.sh are in $PLUGIN_DIR
+#   - config.toml has [hooks] on_change = ["<path to sketchybar>", "--trigger", "wallpaper_changed"]
+
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+
+# Register the custom event. The kakemono on_change hook fires it after every wallpaper change.
+sketchybar --add event wallpaper_changed
+
+# Main wallpaper item, on the right side of the bar.
+sketchybar --add item wallpaper right \
+    --set wallpaper \
+        update_freq=0 \
+        icon="🖼" \
+        label="..." \
+        script="$PLUGIN_DIR/wallpaper.sh" \
+        click_script="sketchybar --set \$NAME popup.drawing=toggle" \
+    --subscribe wallpaper wallpaper_changed mouse.entered mouse.exited mouse.exited.global
+
+# Popup buttons, shown when the wallpaper item is clicked.
+sketchybar --add item wallpaper.next popup.wallpaper \
+    --set wallpaper.next \
+        icon="⏭" \
+        label="Next" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+sketchybar --add item wallpaper.prev popup.wallpaper \
+    --set wallpaper.prev \
+        icon="⏮" \
+        label="Previous" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+sketchybar --add item wallpaper.favorite popup.wallpaper \
+    --set wallpaper.favorite \
+        icon="⭐" \
+        label="Favorite" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+sketchybar --add item wallpaper.trash popup.wallpaper \
+    --set wallpaper.trash \
+        icon="🗑" \
+        label="Trash" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+sketchybar --add item wallpaper.pause popup.wallpaper \
+    --set wallpaper.pause \
+        icon="⏸" \
+        label="Pause/Resume" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+sketchybar --add item wallpaper.settings popup.wallpaper \
+    --set wallpaper.settings \
+        icon="⚙️" \
+        label="Settings" \
+        click_script="$PLUGIN_DIR/wallpaper_popup.sh"
+
+# Run once immediately to populate the label.
+sketchybar --trigger wallpaper_changed
+```
+
+[`plugins/wallpaper.sh`](https://github.com/RielJ/kakemono/blob/main/contrib/sketchybar/plugins/wallpaper.sh):
+
+```sh title="plugins/wallpaper.sh"
+#!/usr/bin/env bash
+# wallpaper.sh: sketchybar plugin that shows the current wallpaper.
+# Subscribes to: wallpaper_changed (fired by the kakemono [hooks] on_change hook).
+#
+# Requires: kakemono, jq. Set KAKEMONO to the binary's full path if sketchybar's PATH
+# doesn't include it.
+
+KAKEMONO="${KAKEMONO:-kakemono}"
+
+if ! STATUS=$("$KAKEMONO" status --json 2>/dev/null) || [ -z "$STATUS" ]; then
+    sketchybar --set "$NAME" label="No daemon" icon="🖼"
+    exit 0
+fi
+
+SOURCE=$(echo "$STATUS" | jq -r '.current.source // "?"')
+TITLE=$(echo "$STATUS" | jq -r '.current.title // ""')
+PAUSED=$(echo "$STATUS" | jq -r 'if .paused then " ⏸" else "" end')
+THEME=$(echo "$STATUS" | jq -r 'if .theme == "dark" then "🌙" else "☀️" end')
+
+# Show the title when there is one, else the source.
+if [ -n "$TITLE" ]; then
+    LABEL="${THEME} ${TITLE:0:25}${PAUSED}"
+else
+    LABEL="${THEME} ${SOURCE}${PAUSED}"
+fi
+
+sketchybar --set "$NAME" label="$LABEL" icon="🖼"
+```
+
+[`plugins/wallpaper_popup.sh`](https://github.com/RielJ/kakemono/blob/main/contrib/sketchybar/plugins/wallpaper_popup.sh):
+
+```sh title="plugins/wallpaper_popup.sh"
+#!/usr/bin/env bash
+# wallpaper_popup.sh: handles clicks on the wallpaper popup buttons.
+# sketchybar sets NAME to the name of the clicked item.
+#
+# Requires: kakemono, jq. Set KAKEMONO to the binary's full path if sketchybar's PATH
+# doesn't include it.
+
+KAKEMONO="${KAKEMONO:-kakemono}"
+
+case "$NAME" in
+    *next)
+        "$KAKEMONO" next
+        ;;
+    *prev)
+        "$KAKEMONO" prev
+        ;;
+    *favorite)
+        "$KAKEMONO" favorite
+        ;;
+    *trash)
+        "$KAKEMONO" trash
+        ;;
+    *pause)
+        IS_PAUSED=$("$KAKEMONO" status --json 2>/dev/null | jq -r '.paused')
+        if [ "$IS_PAUSED" = "true" ]; then
+            "$KAKEMONO" resume
+        else
+            "$KAKEMONO" pause
+        fi
+        # Pause and resume don't change the wallpaper, so the hook doesn't fire. Refresh the label.
+        sketchybar --trigger wallpaper_changed
+        ;;
+    *settings)
+        # Starts the kakemono app (or focuses it) and returns.
+        "$KAKEMONO" settings
+        ;;
+esac
+
+# Close the popup after any action.
+sketchybar --set wallpaper popup.drawing=off
+```
+
+## waybar on Linux
+
+The [waybar files](https://github.com/RielJ/kakemono/tree/main/contrib/waybar) add a `custom/wallpaper` module to [waybar](https://github.com/Alexays/Waybar). The module shows the title, or the source, of the current wallpaper, and a pause mark while rotation is paused. Its tooltip has the title, the author, the source, the file path, and the theme.
+
+waybar refreshes the module when it gets `SIGRTMIN+8`. The daemon sends that signal through its `on_change` hook after every wallpaper change.
+
+| File | What it does |
+|---|---|
+| `kakemono.sh` | Reads `kakemono status --json` and prints one line of waybar JSON. |
+| `config.jsonc` | The `custom/wallpaper` module block. |
+| `style.css` | Optional styles for the module's CSS classes. |
+
+### Set up the waybar module
+
+The commands below run from a clone of the [kakemono repository](https://github.com/RielJ/kakemono).
+
+<Steps>
+
+1. Install `jq`, and make sure that `kakemono` is on your `PATH`.
+
+2. Copy the script:
+
+   ```sh
+   mkdir -p ~/.config/waybar/scripts
+   cp contrib/waybar/kakemono.sh ~/.config/waybar/scripts/
+   chmod +x ~/.config/waybar/scripts/kakemono.sh
+   ```
+
+3. Merge the `custom/wallpaper` block from `config.jsonc` into `~/.config/waybar/config.jsonc`. Then add `"custom/wallpaper"` to one of `modules-left`, `modules-center`, or `modules-right`.
+
+4. Add the hook to your kakemono config:
+
+   ```toml
+   [hooks]
+   on_change = ["pkill", "-RTMIN+8", "waybar"]
+   ```
+
+   If another module already uses signal 8, pick a free number. Change both `"signal"` in the waybar config and `-RTMIN+8` in the hook.
+
+5. Restart the daemon so that it reads the new `[hooks]` section. If you installed the login service, run:
+
+   ```sh
+   systemctl --user restart kakemono.service
+   ```
+
+   If you start the daemon from your compositor config, stop it and run `kakemono daemon` again.
+
+6. Restart waybar.
+
+7. Run `kakemono next`. The module changes when the new wallpaper is set.
+
+</Steps>
+
+### Clicks on the waybar module
+
+| Action | Command |
+|---|---|
+| Left click | `kakemono next` |
+| Right click | `kakemono pick` (needs the kakemono app) |
+| Middle click | `kakemono favorite` |
+| Scroll up | `kakemono prev` |
+| Scroll down | `kakemono next` |
+
+The hook doesn't run for pause and resume. The module picks up the new state within `"interval"` seconds, which is 60. To update it at once, run `pkill -RTMIN+8 waybar` after `kakemono pause` or `kakemono resume`.
+
+### How the waybar module works
+
+- `kakemono.sh` gives the module the classes `light` or `dark`, and `running` or `paused`. When the daemon isn't running, `kakemono status` exits with code 1, and the script prints "🖼 off" with the class `stopped`.
+- `"escape": true` makes waybar show `<`, `>`, and `&` in titles as text, instead of reading them as Pango markup.
+- If the `PATH` of waybar doesn't include `kakemono`, set `KAKEMONO` to the full path at the top of `kakemono.sh`.
+
+### The waybar files
+
+[`kakemono.sh`](https://github.com/RielJ/kakemono/blob/main/contrib/waybar/kakemono.sh):
+
+```sh title="kakemono.sh"
+#!/usr/bin/env bash
+# kakemono.sh: waybar custom module that shows the current wallpaper.
+# Prints one line of waybar JSON ({"text","tooltip","class"}).
+#
+# Requires: kakemono, jq. Set KAKEMONO to the binary's full path if waybar's PATH
+# doesn't include it.
+
+KAKEMONO="${KAKEMONO:-kakemono}"
+
+if ! STATUS=$("$KAKEMONO" status --json 2>/dev/null) || [ -z "$STATUS" ]; then
+    jq -cn '{text: "🖼 off", tooltip: "kakemono daemon is not running", class: "stopped"}'
+    exit 0
+fi
+
+echo "$STATUS" | jq -c '
+  (.current // {}) as $c
+  | {
+      text: ("🖼 " + ((($c.title // "") | if . == "" then ($c.source // "none") else .[0:30] end))
+             + (if .paused then " ⏸" else "" end)),
+      tooltip: ([
+          ($c.title // empty),
+          (if ($c.author // "") != "" then "by " + $c.author else empty end),
+          ("source: " + ($c.source // "none")),
+          ($c.path // empty),
+          ("theme: " + .theme + (if .paused then ", paused" else "" end))
+        ] | join("\n")),
+      class: ([.theme, (if .paused then "paused" else "running" end)])
+    }'
+```
+
+[`config.jsonc`](https://github.com/RielJ/kakemono/blob/main/contrib/waybar/config.jsonc):
+
+```jsonc title="config.jsonc"
+// Add "custom/wallpaper" to one of "modules-left", "modules-center" or "modules-right",
+// then merge this block into your waybar config (~/.config/waybar/config.jsonc).
+{
+  "custom/wallpaper": {
+    "exec": "~/.config/waybar/scripts/kakemono.sh",
+    "return-type": "json",
+    // Titles can contain <, > and &, which Pango markup would reject.
+    "escape": true,
+    // The kakemono hook sends SIGRTMIN+8 after every wallpaper change.
+    "signal": 8,
+    // Poll as well, to catch the daemon starting or stopping.
+    "interval": 60,
+    "on-click": "kakemono next",
+    "on-click-right": "kakemono pick",
+    "on-click-middle": "kakemono favorite",
+    "on-scroll-up": "kakemono prev",
+    "on-scroll-down": "kakemono next"
+  }
+}
+```
+
+[`style.css`](https://github.com/RielJ/kakemono/blob/main/contrib/waybar/style.css):
+
+```css title="style.css"
+/* Optional: add to ~/.config/waybar/style.css. The module gets the classes
+   "light" or "dark", "running" or "paused", or "stopped" when the daemon is down. */
+#custom-wallpaper {
+  padding: 0 8px;
+}
+
+#custom-wallpaper.paused,
+#custom-wallpaper.stopped {
+  opacity: 0.6;
+}
+```

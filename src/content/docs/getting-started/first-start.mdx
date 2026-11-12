@@ -1,0 +1,73 @@
+---
+title: First start
+description: What happens the first time you open kakemono, how to set your first wallpaper, and how to start the daemon at login.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## The Welcome window
+
+The first time you start the kakemono app, a Welcome window opens. It has four short screens: where kakemono lives, a first setup, and tips. When you close it, Settings opens.
+
+The Welcome window appears on the very first start only. A start at login never shows it. To open it again, click **Show welcome tips** at the bottom of **Settings** > **General**.
+
+## Nothing changes until you ask
+
+A new install doesn't change the wallpaper on its own. To change it now, do one of these:
+
+- Click **Change wallpaper now** in the Welcome window.
+- Click **Next** in the tray menu.
+- Run `kakemono next`.
+
+To change the wallpaper on a timer, tick **Change wallpaper every** in Settings, or set [`rotation_enabled = true`](/reference/configuration/#daemon) in `[daemon]`. [Changing wallpapers](/guides/changing-wallpapers/) explains the timer.
+
+Background downloads are off too. **Next** and the picker download an image when you ask for one. See [Downloads](/guides/changing-wallpapers/#downloads).
+
+The Settings and Welcome windows use the light theme. To change the theme, go to **Settings** > **Advanced** > **Appearance**, or set [`appearance`](/reference/configuration/#ui) in `[ui]`.
+
+## Quick start
+
+The app starts the daemon for you. With the command-line tool only, start the daemon yourself, then send it commands:
+
+```sh
+kakemono daemon          # start the daemon in the background
+kakemono next            # set a new wallpaper now
+kakemono status          # show the current wallpaper
+kakemono prev            # go back in the history
+kakemono favorite        # copy the current wallpaper to the favorites folder
+kakemono trash           # move the current wallpaper to the trash folder and set the next one
+kakemono set ~/Downloads/photo.jpg
+kakemono pause           # stop the timer; `kakemono resume` starts it again
+```
+
+If a command can't reach the daemon, it exits with code 1 and says how to start the daemon. The [commands reference](/reference/commands/) lists every command.
+
+On Linux, run `kakemono detect` once to see which wallpaper backend kakemono picked for your desktop. If wallpapers don't change, run `kakemono doctor`. See [Linux desktops](/guides/linux/).
+
+## Start the daemon at login
+
+To start the daemon every time you log in, install it as a login service:
+
+```sh
+kakemono service install
+```
+
+The service depends on your system:
+
+| OS | What `service install` creates | Logs |
+|---|---|---|
+| macOS | The LaunchAgent `dev.rielj.kakemono.daemon` in `~/Library/LaunchAgents/` | `~/.local/state/kakemono/launchd.log` |
+| Linux | The systemd user unit `~/.config/systemd/user/kakemono.service`, part of `graphical-session.target` | `journalctl --user -u kakemono.service` |
+| Windows | The value `kakemono-daemon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` | `%LOCALAPPDATA%\kakemono\logs\` |
+
+To see whether the service is installed and running, run `kakemono service status`. To remove it, run `kakemono service uninstall`.
+
+<Aside type="caution" title="Tiling compositors on Linux">
+The systemd unit needs your session's environment, and many tiling compositors don't start `graphical-session.target`. [The systemd service needs your session environment](/guides/linux/#the-systemd-service-needs-your-session-environment) explains both cases and the fix.
+</Aside>
+
+## Next steps
+
+- [Sources](/guides/sources/): choose where wallpapers come from.
+- [The picker](/guides/picker/): browse a source and pick a wallpaper by hand.
+- [Configuration](/reference/configuration/): every setting in `config.toml`.

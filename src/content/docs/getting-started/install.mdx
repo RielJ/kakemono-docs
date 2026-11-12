@@ -1,0 +1,182 @@
+---
+title: Install
+description: Install the kakemono app or the command-line tool on macOS, Linux, or Windows from a package manager, a release download, or source.
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+kakemono comes in two parts. The `kakemono` binary is both the daemon and the command-line tool. The kakemono app adds a menu-bar (tray) icon, the [picker](/guides/picker/), and a settings window. Every app download includes the command-line tool.
+
+<Aside type="caution" title="The builds are not signed">
+macOS, Windows, and Linux each warn about kakemono the first time you open it. Each section below says how to get past the warning.
+</Aside>
+
+## Package managers
+
+<Tabs syncKey="os">
+	<TabItem label="macOS">
+		```sh
+		# The app, with the kakemono command
+		brew install --cask rielj/tap/kakemono
+
+		# The command-line tool only
+		brew install rielj/tap/kakemono-cli
+		```
+
+		The Homebrew cask clears the quarantine flag for you, so macOS opens the app without calling it "damaged".
+	</TabItem>
+	<TabItem label="Windows">
+		Scoop can install kakemono with or without Git:
+
+		```powershell
+		# Without Git
+		scoop install https://raw.githubusercontent.com/RielJ/scoop-bucket/main/bucket/kakemono.json
+
+		# With Git: add the bucket, then install from it
+		scoop bucket add rielj https://github.com/RielJ/scoop-bucket
+		scoop install rielj/kakemono
+		```
+
+		winget is not available yet. The first submission to `winget-pkgs` is in review. When it is accepted, the command is:
+
+		```powershell
+		winget install RielJ.kakemono
+		```
+
+		winget runs the same unsigned installer as a download, so SmartScreen still warns once. Click **More info**, then click **Run anyway**.
+	</TabItem>
+	<TabItem label="Linux">
+		```sh
+		# The command-line tool only, with Homebrew
+		brew install rielj/tap/kakemono-cli
+		```
+
+		The AUR package is not available yet. The package isn't on the AUR. When it is, the command is:
+
+		```sh
+		yay -S kakemono-bin
+		```
+	</TabItem>
+</Tabs>
+
+## Download
+
+| Platform | App (includes the CLI) | CLI only |
+|---|---|---|
+| macOS, Apple silicon | [`kakemono-macos-arm64.dmg`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-macos-arm64.dmg) | [`kakemono-cli-macos-arm64.tar.gz`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-macos-arm64.tar.gz) |
+| macOS, Intel | [`kakemono-macos-x64.dmg`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-macos-x64.dmg) | [`kakemono-cli-macos-x64.tar.gz`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-macos-x64.tar.gz) |
+| Linux, x86_64 | [`.deb`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.deb), [`.rpm`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.rpm), [`.AppImage`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.AppImage) | [`kakemono-cli-linux-x64.tar.gz`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-linux-x64.tar.gz) |
+| Linux, ARM64 | None | [`kakemono-cli-linux-arm64.tar.gz`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-linux-arm64.tar.gz) |
+| Windows, x64 | [`-setup.exe`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-windows-x64-setup.exe), [`.msi`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-windows-x64.msi) | [`kakemono-cli-windows-x64.zip`](https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-windows-x64.zip) |
+
+Every file is also on the [GitHub releases page](https://github.com/RielJ/kakemono/releases), with a `SHA256SUMS` file. To check a download, see [Check a download](#check-a-download).
+
+## macOS
+
+```sh
+# Apple silicon. On an Intel Mac, use kakemono-macos-x64.dmg.
+curl -LO https://github.com/RielJ/kakemono/releases/latest/download/kakemono-macos-arm64.dmg
+open kakemono-macos-arm64.dmg    # drag kakemono to Applications
+```
+
+The app is not signed, so macOS calls it "damaged" until you clear the quarantine flag:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/kakemono.app
+```
+
+To use the command-line tool from a terminal, put it on your `PATH`:
+
+```sh
+ln -s /Applications/kakemono.app/Contents/MacOS/kakemono ~/.local/bin/kakemono
+```
+
+Open kakemono. It starts the daemon and puts its icon in the menu bar. If you can't see the icon, see [The menu-bar icon is missing on macOS](/troubleshooting/#the-menu-bar-icon-is-missing-on-macos).
+
+## Windows
+
+```powershell
+Invoke-WebRequest https://github.com/RielJ/kakemono/releases/latest/download/kakemono-windows-x64-setup.exe -OutFile kakemono-setup.exe
+.\kakemono-setup.exe
+```
+
+SmartScreen warns that the publisher is unknown. Click **More info**, then click **Run anyway**. The `.msi` installs the same app.
+
+The installer adds kakemono to the Start menu. The kakemono icon is in the notification area. Windows can hide it behind the **^** arrow.
+
+## Linux
+
+```sh
+# Debian, Ubuntu
+curl -LO https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.deb
+sudo apt install ./kakemono-linux-x64.deb
+
+# Fedora
+sudo dnf install https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.rpm
+
+# Any distribution
+curl -LO https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.AppImage
+chmod +x kakemono-linux-x64.AppImage && ./kakemono-linux-x64.AppImage
+```
+
+The `.deb` and `.rpm` packages install `kakemono` and `kakemono-ui` into `/usr/bin`.
+
+The tray icon needs a StatusNotifier host. On GNOME, install the AppIndicator extension. See [The tray icon needs a StatusNotifier host](/guides/linux/#the-tray-icon-needs-a-statusnotifier-host).
+
+On Linux, kakemono sets the wallpaper through a backend that depends on your desktop. After you install, run `kakemono detect` once to see which backend it picked. [Linux desktops](/guides/linux/) explains the backends.
+
+## Command-line tool only
+
+Install only the command-line tool on servers, on window managers, on ARM Linux, or anywhere you don't want the app:
+
+```sh
+# Pick one: macos-arm64, macos-x64, linux-x64, or linux-arm64
+platform=linux-x64
+curl -fsSL https://github.com/RielJ/kakemono/releases/latest/download/kakemono-cli-$platform.tar.gz | tar xz
+install -m 755 kakemono-cli-$platform/kakemono ~/.local/bin/
+```
+
+On Windows, unzip `kakemono-cli-windows-x64.zip` and put `kakemono.exe` on your `PATH`.
+
+Without the app, the `pick` and `settings` commands have nothing to open. The [commands reference](/reference/commands/) lists every command.
+
+## Check a download
+
+Download `SHA256SUMS` from the same release, then run this command in the folder with your download:
+
+```sh
+shasum -a 256 -c SHA256SUMS --ignore-missing
+```
+
+## Build from source
+
+kakemono builds with stable Rust 1.99 or newer. To build and install only the command-line tool and daemon:
+
+```sh
+git clone https://github.com/RielJ/kakemono.git && cd kakemono
+cargo install --locked --path crates/cli    # installs kakemono into ~/.cargo/bin
+```
+
+The app is a Tauri 2 project in `crates/ui`. It also needs Node.js 26 or newer, as set in `.node-version`. On Linux, it needs the WebKitGTK development packages too. On Debian and Ubuntu:
+
+```sh
+sudo apt install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+To build the app bundle, which contains the `kakemono` binary:
+
+```sh
+scripts/build-sidecar.sh
+cd crates/ui/frontend
+npm ci
+TAURI_APP_PATH=../src-tauri npm run tauri -- build --config ../src-tauri/tauri.bundle.conf.json
+```
+
+The bundles go to `target/release/bundle/`.
+
+A build from source doesn't update itself the way a release does. See [Updating](/guides/updating/).
+
+## Next steps
+
+- [First start](/getting-started/first-start/): the Welcome window, your first wallpaper, and starting the daemon at login.
+- [Sources](/guides/sources/): choose where wallpapers come from.
