@@ -29,7 +29,7 @@ The background daemon writes one log file per day, `kakemono.<date>.log`, in the
 
 `KAKEMONO_LOG` sets the log level in `tracing` filter syntax, for example `KAKEMONO_LOG=debug`.
 
-The [login service](/getting-started/first-start/#start-the-daemon-at-login) also logs to these places:
+The [login service](/install/other/#start-the-daemon-at-login) also logs to these places:
 
 | OS | Login service logs |
 |---|---|

@@ -1,0 +1,25 @@
+---
+title: Install on Debian or Ubuntu
+description: Install the kakemono .deb package on Debian, Ubuntu, Linux Mint, Pop!_OS and other Ubuntu-based systems.
+---
+
+import { LinkButton } from '@astrojs/starlight/components';
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+import LinuxDesktops from '../../../components/install/LinuxDesktops.mdx';
+
+Download the package and open it to install it with your software center:
+
+<LinkButton href="https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.deb">Download the .deb</LinkButton>
+
+Or install it from a terminal:
+
+```sh
+curl -LO https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.deb
+sudo apt install ./kakemono-linux-x64.deb
+```
+
+Then open **kakemono** from your app launcher.
+
+<LinuxDesktops />
+
+<FirstOpen />

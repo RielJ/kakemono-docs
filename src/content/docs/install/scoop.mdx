@@ -1,0 +1,23 @@
+---
+title: Install with Scoop
+description: Install the kakemono app on Windows with Scoop.
+---
+
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+
+On Windows with [Scoop](https://scoop.sh), paste one of these into PowerShell:
+
+```powershell
+# Without Git
+scoop install https://raw.githubusercontent.com/RielJ/scoop-bucket/main/bucket/kakemono.json
+
+# With Git: add the bucket, then install from it
+scoop bucket add rielj https://github.com/RielJ/scoop-bucket
+scoop install rielj/kakemono
+```
+
+Then open kakemono from the Start menu. Its icon appears in the system tray, at the bottom right of your screen. If you don't see it, click the **^** arrow next to the clock.
+
+Don't have Scoop? Use the [installer](/install/windows/) instead.
+
+<FirstOpen />

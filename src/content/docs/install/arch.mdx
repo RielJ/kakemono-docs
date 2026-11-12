@@ -1,0 +1,38 @@
+---
+title: Install on Arch Linux
+description: Install kakemono from the AUR with yay or paru, on Arch Linux and Arch-based systems such as EndeavourOS.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+import LinuxDesktops from '../../../components/install/LinuxDesktops.mdx';
+
+kakemono is in the AUR as [`kakemono-bin`](https://aur.archlinux.org/packages/kakemono-bin). It installs the app from the release, for x86_64 computers. Install it with your AUR helper:
+
+<Tabs syncKey="aur-helper">
+	<TabItem label="yay">
+		```sh
+		yay -S kakemono-bin
+		```
+	</TabItem>
+	<TabItem label="paru">
+		```sh
+		paru -S kakemono-bin
+		```
+	</TabItem>
+	<TabItem label="No helper">
+		```sh
+		git clone https://aur.archlinux.org/kakemono-bin.git
+		cd kakemono-bin
+		makepkg -si
+		```
+	</TabItem>
+</Tabs>
+
+Then open **kakemono** from your app launcher.
+
+To update kakemono, update your system with your AUR helper, for example `yay -Syu`. The app doesn't update itself when the AUR installed it. Its update banner shows this command instead.
+
+<LinuxDesktops />
+
+<FirstOpen />

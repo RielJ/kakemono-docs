@@ -1,32 +1,95 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><style>
-  * { margin: 0; box-sizing: border-box; }
-  html, body { width: 1280px; height: 640px; overflow: hidden; }
-  body {
-    font-family: -apple-system, "SF Pro Display", "Inter", system-ui, sans-serif;
-    background: radial-gradient(120% 90% at 15% 0%, #333847 0%, #1d2029 55%, #14161d 100%);
-    color: #f4efe4; position: relative;
-  }
-  .top { display: flex; align-items: center; gap: 44px; padding: 64px 80px 0; }
-  .icon { width: 220px; height: 220px; margin: -24px -24px -24px -30px; }
-  h1 { font-size: 104px; font-weight: 700; letter-spacing: -3px; line-height: 1; }
-  p.tag { font-size: 36px; line-height: 1.25; color: #f4efe4; margin-top: 18px; }
-  p.sub { font-size: 26px; line-height: 1.35; color: #a9a397; margin-top: 10px; max-width: 900px; white-space: nowrap; }
-  .os { position: absolute; top: 76px; right: 80px; font-size: 22px; color: #9aa0ad;
-        letter-spacing: 0.5px; }
-  .strip { position: absolute; left: 0; right: 0; bottom: 0; height: 236px; overflow: hidden;
-           border-top: 1px solid rgba(255,255,255,0.08); }
-  .strip img { position: absolute; left: 50%; bottom: 0; height: 236px; transform: translateX(-50%); }
-  .strip::after { content: ""; position: absolute; inset: 0;
-    background: linear-gradient(90deg, #171a22 0%, transparent 10%, transparent 90%, #171a22 100%); }
-</style></head><body>
-    <div class="top">
-    <img class="icon" src="icon.svg" alt="">
-    <div>
-      <h1>kakemono</h1>
-      <p class="tag">A wallpaper manager for macOS, Linux and Windows.</p>
-      <p class="sub">Wallhaven, Unsplash, Reddit, Bing, NASA, any web page, or your own folders.</p>
-    </div>
-  </div>
-  <div class="strip"><img src="picker.jpg" alt=""></div>
-</body></html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			* {
+				margin: 0;
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				width: 1280px;
+				height: 640px;
+				overflow: hidden;
+			}
+			body {
+				font-family: -apple-system, "SF Pro Display", "Inter", system-ui, sans-serif;
+				background: radial-gradient(120% 90% at 15% 0%, #333847 0%, #1d2029 55%, #14161d 100%);
+				color: #f4efe4;
+				position: relative;
+			}
+			.top {
+				display: flex;
+				align-items: center;
+				gap: 44px;
+				padding: 64px 80px 0;
+			}
+			.icon {
+				width: 184px;
+				height: 184px;
+			}
+			h1 {
+				font-size: 104px;
+				font-weight: 700;
+				letter-spacing: -3px;
+				line-height: 1;
+			}
+			p.tag {
+				font-size: 36px;
+				line-height: 1.25;
+				color: #f4efe4;
+				margin-top: 18px;
+			}
+			p.sub {
+				font-size: 26px;
+				line-height: 1.35;
+				color: #a9a397;
+				margin-top: 10px;
+				max-width: 900px;
+				white-space: nowrap;
+			}
+			.os {
+				position: absolute;
+				top: 76px;
+				right: 80px;
+				font-size: 22px;
+				color: #9aa0ad;
+				letter-spacing: 0.5px;
+			}
+			.strip {
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				height: 236px;
+				overflow: hidden;
+				border-top: 1px solid rgba(255, 255, 255, 0.08);
+			}
+			.strip img {
+				position: absolute;
+				left: 50%;
+				bottom: 0;
+				height: 236px;
+				transform: translateX(-50%);
+			}
+			.strip::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(90deg, #171a22 0%, transparent 10%, transparent 90%, #171a22 100%);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="top">
+			<img class="icon" src="icon.png" alt="" />
+			<div>
+				<h1>kakemono</h1>
+				<p class="tag">A wallpaper manager for macOS, Linux and Windows.</p>
+				<p class="sub">Wallhaven, Unsplash, Reddit, Bing, NASA, any web page, or your own folders.</p>
+			</div>
+		</div>
+		<div class="strip"><img src="picker.jpg" alt="" /></div>
+	</body>
+</html>

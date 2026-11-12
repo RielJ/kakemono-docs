@@ -13,5 +13,5 @@ cd og
   --screenshot="$PWD/../public/og.png" "file://$PWD/og.html"
 ```
 
-`icon.svg` is a copy of `crates/ui/src-tauri/icons/icon.svg` from the kakemono repo, and
+`icon.png` is the night app icon (`kakemono-dark.png`) scaled to 400×400, and
 `picker.jpg` is the picker screenshot from the blog post.

@@ -30,4 +30,4 @@ If a package manager installed kakemono, update it there instead. The banner nam
 
 ## Update the command-line tool
 
-The command-line tool on its own does not update itself. To update it, download the new archive and install it the same way as the first time. See [Command-line tool only](/getting-started/install/#command-line-tool-only).
+The command-line tool on its own does not update itself. To update it, download the new archive and install it the same way as the first time. See [Command-line tool only](/install/other/#command-line-tool-only).

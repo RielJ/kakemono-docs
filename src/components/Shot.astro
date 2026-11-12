@@ -1,0 +1,35 @@
+---
+// A screenshot of a kakemono window, in the reader's theme.
+// Each shot exists twice: src/assets/screens/light/<name>.png and .../dark/<name>.png.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	name: 'welcome-1' | 'welcome-2' | 'welcome-3' | 'welcome-4' | 'settings';
+	alt: string;
+	caption?: string;
+	/** The image is cut off at the bottom; fade it out. */
+	cut?: boolean;
+	/** Display width in CSS pixels. The PNGs are 2x. */
+	width?: number;
+}
+
+const { name, alt, caption, cut = false, width } = Astro.props;
+
+const light = import.meta.glob<{ default: ImageMetadata }>('../assets/screens/light/*.png', { eager: true });
+const dark = import.meta.glob<{ default: ImageMetadata }>('../assets/screens/dark/*.png', { eager: true });
+const lightSrc = light[`../assets/screens/light/${name}.png`]?.default;
+const darkSrc = dark[`../assets/screens/dark/${name}.png`]?.default;
+if (!lightSrc || !darkSrc) throw new Error(`Shot: missing screenshot "${name}"`);
+
+const w = width ?? Math.round(lightSrc.width / 2);
+const widths = [w, w * 2];
+---
+
+<figure class:list={['shot', 'not-content', { 'shot--cut': cut }]} style={`max-width: ${w + 16}px`}>
+	<div class="shot__frame">
+		<Image class="only-light" src={lightSrc} alt={alt} widths={widths} sizes={`(min-width: ${w}px) ${w}px, 100vw`} format="webp" quality={88} />
+		<Image class="only-dark" src={darkSrc} alt={alt} widths={widths} sizes={`(min-width: ${w}px) ${w}px, 100vw`} format="webp" quality={88} />
+	</div>
+	{caption && <figcaption>{caption}</figcaption>}
+</figure>

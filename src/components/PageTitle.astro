@@ -1,0 +1,33 @@
+---
+// Starlight's page title, with the sidebar group's name above it in mono caps, as on tailwindcss.com/docs.
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+
+type Entry = StarlightRouteData['sidebar'][number];
+
+const { entry, sidebar } = Astro.locals.starlightRoute;
+
+const holds = (e: Entry): boolean => (e.type === 'link' ? e.isCurrent : e.entries.some(holds));
+const group = sidebar.find((e) => e.type === 'group' && holds(e));
+const label = group?.type === 'group' ? group.label : undefined;
+---
+
+{label && <p class="kk-eyebrow page-eyebrow">{label}</p>}
+<!-- Starlight's skip link and heading anchors expect this id. -->
+<h1 id="_top">{entry.data.title}</h1>
+
+<style>
+	.page-eyebrow {
+		margin-top: 1rem;
+	}
+
+	h1 {
+		margin-top: 1rem;
+		font-size: var(--sl-text-h1);
+		line-height: var(--sl-line-height-headings);
+		color: var(--sl-color-white);
+	}
+
+	.page-eyebrow + h1 {
+		margin-top: 0.25rem;
+	}
+</style>

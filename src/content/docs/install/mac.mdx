@@ -1,0 +1,39 @@
+---
+title: Install on a Mac
+description: Download the kakemono app for an Apple silicon or Intel Mac and get past the "damaged" warning macOS shows the first time.
+---
+
+import { Steps, LinkButton } from '@astrojs/starlight/components';
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+
+<Steps>
+
+1. Download the app for your Mac:
+
+   <LinkButton href="https://github.com/RielJ/kakemono/releases/latest/download/kakemono-macos-arm64.dmg">Apple silicon</LinkButton>
+   <LinkButton href="https://github.com/RielJ/kakemono/releases/latest/download/kakemono-macos-x64.dmg" variant="secondary">Intel</LinkButton>
+
+   Not sure which Mac you have? Open the Apple menu and choose **About This Mac**. If it says **Chip: Apple M1** (or M2, M3, M4), you have Apple silicon. If it says **Processor: Intel**, you have Intel.
+
+2. Open the downloaded file and drag **kakemono** into **Applications**.
+
+3. Open kakemono from Applications. macOS says that **"kakemono" is damaged and can't be opened**.
+
+   The app isn't damaged. macOS shows this for apps that aren't signed with a paid Apple developer certificate, and kakemono isn't signed yet. To tell macOS the app is safe:
+
+   1. Press **Command + Space**, type **Terminal**, and press **Return**.
+   2. Paste this line into the Terminal window and press **Return**:
+
+      ```sh
+      xattr -dr com.apple.quarantine /Applications/kakemono.app
+      ```
+
+   3. Close Terminal.
+
+   You only do this once.
+
+4. Open kakemono from Applications again. Its icon appears in the menu bar, at the top right of your screen.
+
+</Steps>
+
+<FirstOpen />

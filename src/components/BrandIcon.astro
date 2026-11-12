@@ -1,0 +1,24 @@
+---
+/* A full-colour logo from Iconify's `logos` set (github.com/gilbarbara/logos).
+   Parts of a logo without their own fill, such as Apple's, use the text colour. */
+import { icons } from '@iconify-json/logos';
+
+interface Props {
+	name: keyof typeof icons.icons;
+	size?: string;
+}
+
+const { name, size = '1.5rem' } = Astro.props;
+const icon = icons.icons[name];
+const width = icon.width ?? icons.width ?? 16;
+const height = icon.height ?? icons.height ?? 16;
+---
+
+<svg
+	viewBox={`0 0 ${width} ${height}`}
+	width={size}
+	height={size}
+	fill="currentColor"
+	aria-hidden="true"
+	set:html={icon.body}
+/>

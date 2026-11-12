@@ -1,0 +1,72 @@
+---
+/*
+ * Replaces Starlight's Dark/Light/Auto menu with the home page's toggle: one button that flips the theme.
+ * The choice is stored under Starlight's key, so the home page and the docs open in the same theme.
+ * Until the visitor clicks, Starlight's ThemeProvider follows the system theme.
+ */
+---
+
+<button class="kk-theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme">
+	<svg class="sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+		<circle cx="12" cy="12" r="4"></circle>
+		<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+	</svg>
+	<svg class="moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+		<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+	</svg>
+</button>
+
+<script>
+	const root = document.documentElement;
+	// The header and the mobile menu footer each render one.
+	const toggles = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+	const label = () => {
+		const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+		for (const t of toggles) t.ariaLabel = `Switch to ${next} theme`;
+	};
+	label();
+	for (const t of toggles) {
+		t.addEventListener('click', () => {
+			root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+			localStorage.setItem('starlight-theme', root.dataset.theme);
+			label();
+		});
+	}
+	// Follow the system while the visitor hasn't picked a theme.
+	matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+		const stored = localStorage.getItem('starlight-theme');
+		if (stored === 'light' || stored === 'dark') return;
+		root.dataset.theme = e.matches ? 'light' : 'dark';
+		label();
+	});
+</script>
+
+<style>
+	.kk-theme-toggle {
+		display: inline-grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 0;
+		border-radius: 0.5rem;
+		background: none;
+		color: var(--kk-muted);
+		cursor: pointer;
+		transition: color 120ms ease;
+	}
+
+	.kk-theme-toggle:hover {
+		color: var(--kk-strong);
+	}
+
+	.kk-theme-toggle:focus-visible {
+		outline: 2px solid var(--kk-ring);
+		outline-offset: 2px;
+	}
+
+	:root[data-theme='light'] .sun,
+	:root:not([data-theme='light']) .moon {
+		display: none;
+	}
+</style>

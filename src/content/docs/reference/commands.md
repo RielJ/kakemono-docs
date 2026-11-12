@@ -30,7 +30,7 @@ The `kakemono` binary is both the daemon and the command-line client. Every comm
 | `settings` | Opens the settings window in the kakemono app. |
 | `detect` | Shows the wallpaper backend for this session and why. `--write` saves it to `[desktop]`. `--force` overwrites a section with `managed_by = "user"`. Linux only. On other systems, it prints the native backend. |
 | `doctor` | Prints the config file, the session, the backend and the command it would run, the picker window rules, and the daemon's state. `--apply` asks the daemon to set the current wallpaper again. |
-| `service install`, `service uninstall`, `service status [--json]` | Manages the login service. See [Start the daemon at login](/getting-started/first-start/#start-the-daemon-at-login). |
+| `service install`, `service uninstall`, `service status [--json]` | Manages the login service. See [Start the daemon at login](/install/other/#start-the-daemon-at-login). |
 | `config path`, `config init`, `config edit` | Prints the config path, writes the commented default config, or opens the config in `$VISUAL` or `$EDITOR`. `config init` never overwrites a file. |
 | `completions <SHELL>` | Prints a completion script for `bash`, `elvish`, `fish`, `powershell`, or `zsh`. |
 

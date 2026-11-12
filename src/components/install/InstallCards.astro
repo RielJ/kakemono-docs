@@ -1,0 +1,148 @@
+---
+/* The cards on the Install page. Each one opens the page for that way to install. */
+import { Icon } from '@astrojs/starlight/components';
+import BrandIcon from '../BrandIcon.astro';
+
+/* `logo` is a full-colour logo from Iconify's `logos` set; `icon` is a Starlight icon. */
+const cards = [
+	{
+		logo: 'homebrew',
+		title: 'Mac, with Homebrew',
+		note: 'One command in Terminal. You skip the security warning.',
+		href: '/install/homebrew/',
+	},
+	{
+		logo: 'apple',
+		title: 'Mac, download',
+		note: 'The app as a .dmg file, for Apple silicon and Intel Macs.',
+		href: '/install/mac/',
+	},
+	{
+		logo: 'microsoft-windows-icon',
+		title: 'Windows, with Scoop',
+		note: 'One command in PowerShell.',
+		href: '/install/scoop/',
+	},
+	{
+		logo: 'microsoft-windows-icon',
+		title: 'Windows, installer',
+		note: 'Download the setup file and run it.',
+		href: '/install/windows/',
+	},
+	{
+		logo: 'debian',
+		title: 'Debian, Ubuntu',
+		note: 'Also Linux Mint, Pop!_OS and other Ubuntu-based systems.',
+		href: '/install/debian/',
+	},
+	{
+		logo: 'fedora',
+		title: 'Fedora, openSUSE',
+		note: 'Systems that install .rpm packages.',
+		href: '/install/fedora/',
+	},
+	{
+		logo: 'archlinux',
+		title: 'Arch Linux',
+		note: 'From the AUR, with yay or paru.',
+		href: '/install/arch/',
+	},
+	{
+		logo: 'linux-tux',
+		title: 'Any Linux',
+		note: 'The AppImage. It runs without installing.',
+		href: '/install/appimage/',
+	},
+	{
+		icon: 'setting',
+		title: 'Other ways to install',
+		note: 'The command-line tool alone, every download, and building from source.',
+		href: '/install/other/',
+	},
+] as const;
+---
+
+<ul class="kk-cards not-content">
+	{
+		cards.map((c) => (
+			<li>
+				<a class="kk-card" href={c.href}>
+					<span class="kk-card__icon">
+						{'logo' in c ? <BrandIcon name={c.logo} /> : <Icon name={c.icon} size="1.5rem" />}
+					</span>
+					<span class="kk-card__text">
+						<span class="kk-card__title">{c.title}</span>
+						<span class="kk-card__note">{c.note}</span>
+					</span>
+				</a>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.kk-cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: 0.5rem 1.5rem;
+		margin: 1.5rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.kk-card {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+		margin: 0 -0.75rem;
+		padding: 0.75rem;
+		border-radius: 0.75rem;
+		color: var(--kk-text);
+		text-decoration: none;
+		transition: background-color 150ms var(--kk-ease-out);
+	}
+
+	.kk-card:hover {
+		background: var(--kk-surface);
+	}
+
+	.kk-card:focus-visible {
+		outline: 2px solid var(--kk-ring);
+		outline-offset: 2px;
+	}
+
+	.kk-card__icon {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 3rem;
+		height: 3rem;
+		border-radius: 999px;
+		background: var(--kk-surface);
+		box-shadow: inset 0 0 0 1px var(--kk-line);
+		color: var(--kk-strong);
+	}
+
+	.kk-card__text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		min-width: 0;
+	}
+
+	.kk-card__title {
+		color: var(--kk-strong);
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	.kk-card:hover .kk-card__title {
+		color: var(--kk-accent-text);
+	}
+
+	.kk-card__note {
+		color: var(--kk-muted);
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
+</style>

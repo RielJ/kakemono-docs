@@ -1,0 +1,108 @@
+/*
+ * Shared by the home page and the Starlight docs.
+ * Modelled on tailwindcss.com: Inter and IBM Plex Mono, the gray scale with the app icon's violet as the accent,
+ * 1px rule lines and hatched gutters. Values are Tailwind v4's palette, in hex.
+ * Dark is the default, as in Starlight; [data-theme='light'] switches.
+ */
+
+:root {
+	--kk-font-body: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+	--kk-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+	/* gray-950 page, white headings, gray-300 body text. */
+	--kk-bg: #030712;
+	--kk-strong: #ffffff;
+	--kk-text: #d1d5dc;
+	--kk-muted: #99a1af;
+	--kk-line: rgb(255 255 255 / 0.1);
+	--kk-line-soft: rgb(255 255 255 / 0.05);
+	--kk-hatch: rgb(255 255 255 / 0.1);
+	--kk-surface: rgb(255 255 255 / 0.05);
+	--kk-solid-line: #1e2939;
+	--kk-solid-surface: #101828;
+
+	/* The app icon's violet, lifted for dark: violet-400 is 7.4:1 on the page. */
+	--kk-accent: #a78bfa;
+	--kk-accent-text: #a78bfa;
+	--kk-accent-soft: #2e1065;
+	--kk-underline: #a78bfa;
+
+	--kk-button-bg: #364153;
+	--kk-button-hover: #4a5565;
+	--kk-button-text: #ffffff;
+
+	/* The hero's call to action: violet-400 with near-black text (7.4:1). */
+	--kk-cta-bg: #a78bfa;
+	--kk-cta-hover: #c4b5fd;
+	--kk-cta-text: #030712;
+	--kk-cta-glow: rgb(167 139 250 / 0.35);
+
+	--kk-ring: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+	--kk-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+	/* White page, gray-950 headings, gray-700 body text. */
+	--kk-bg: #ffffff;
+	--kk-strong: #030712;
+	--kk-text: #364153;
+	--kk-muted: #4a5565;
+	--kk-line: rgb(3 7 18 / 0.1);
+	--kk-line-soft: rgb(3 7 18 / 0.05);
+	--kk-hatch: rgb(3 7 18 / 0.05);
+	--kk-surface: rgb(3 7 18 / 0.025);
+	--kk-solid-line: #e5e7eb;
+	--kk-solid-surface: #f9fafb;
+
+	/* violet-600 for marks; violet-700 keeps 12px labels readable on white (7.1:1). */
+	--kk-accent: #7c3aed;
+	--kk-accent-text: #6d28d9;
+	--kk-accent-soft: #ede9fe;
+	--kk-underline: #a78bfa;
+
+	--kk-button-bg: #030712;
+	--kk-button-hover: #1e2939;
+	--kk-button-text: #ffffff;
+
+	/* violet-700 with white text (7.1:1); violet-500 is too light for white text. */
+	--kk-cta-bg: #6d28d9;
+	--kk-cta-hover: #5b21b6;
+	--kk-cta-text: #ffffff;
+	--kk-cta-glow: rgb(109 40 217 / 0.3);
+
+	--kk-ring: inset 0 0 0 1px rgb(3 7 18 / 0.1);
+	color-scheme: light;
+}
+
+/* The diagonal hatching Tailwind puts in its gutters. */
+.kk-hatch {
+	background-image: repeating-linear-gradient(315deg, var(--kk-hatch) 0 1px, transparent 0 50%);
+	background-size: 10px 10px;
+}
+
+/* Small mono caps above headings: "INSTALLATION", "SPONSORS". */
+.kk-eyebrow {
+	margin: 0;
+	font: 600 0.75rem/1.5rem var(--kk-font-mono);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--kk-accent-text);
+}
+
+::selection {
+	background: var(--kk-accent-soft);
+	color: var(--kk-strong);
+}
+
+:focus-visible {
+	outline: 2px solid var(--kk-accent);
+	outline-offset: 2px;
+}
+
+html {
+	accent-color: var(--kk-accent);
+	scrollbar-color: var(--kk-solid-line) transparent;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

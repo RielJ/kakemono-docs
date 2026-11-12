@@ -1,21 +1,614 @@
-/* The accent blues come from the kakemono app (crates/ui/frontend/src/shared/tokens.css):
-   #0a64d6 in light mode, #3b8eea in dark mode. */
-:root {
-	--sl-color-accent-low: #0b2647;
-	--sl-color-accent: #3b8eea;
-	--sl-color-accent-high: #c4ddfa;
+/* Starlight, restyled after tailwindcss.com/docs. Colours come from tokens.css. */
+:root,
+:root[data-theme="light"] {
+	--sl-font: var(--kk-font-body);
+	--sl-font-mono: var(--kk-font-mono);
+
+	--sl-color-accent-low: var(--kk-accent-soft);
+	--sl-color-accent: var(--kk-accent);
+	--sl-color-accent-high: var(--kk-accent-text);
+	--sl-color-text-accent: var(--kk-accent-text);
+	--sl-color-text-invert: var(--kk-bg);
+
+	/* Starlight names its scale for dark mode: "white" is the strongest text in both themes. */
+	--sl-color-white: var(--kk-strong);
+	--sl-color-gray-1: var(--kk-strong);
+	--sl-color-gray-2: var(--kk-text);
+	--sl-color-gray-3: var(--kk-muted);
+	--sl-color-gray-4: var(--kk-muted);
+	--sl-color-gray-5: var(--kk-solid-line);
+	--sl-color-gray-6: var(--kk-solid-surface);
+	--sl-color-gray-7: var(--kk-solid-surface);
+	--sl-color-black: var(--kk-bg);
+
+	--sl-color-bg: var(--kk-bg);
+	--sl-color-bg-nav: var(--kk-bg);
+	--sl-color-bg-sidebar: var(--kk-bg);
+	--sl-color-bg-inline-code: transparent;
+	--sl-color-hairline: var(--kk-line);
+	--sl-color-hairline-light: var(--kk-line);
+	--sl-color-hairline-shade: var(--kk-line);
+
+	--sl-text-h1: 2rem;
+	--sl-text-h2: 1.25rem;
+	--sl-text-h3: 1.0625rem;
+	--sl-text-h4: 1rem;
+	--sl-line-height: 1.75;
+	--sl-line-height-headings: 1.3;
+	--sl-content-width: 56rem;
+	--kk-toc-width: 16rem;
 }
 
-:root[data-theme='light'] {
-	--sl-color-accent-low: #d6e6fb;
-	--sl-color-accent: #0a64d6;
-	--sl-color-accent-high: #08367a;
+body {
+	font-size: 1rem;
+	color: var(--kk-text);
 }
 
-/* The demo GIF on the home page: rounded like a window, with a soft shadow. */
-.demo {
+/* Header: page colour, one hairline under it. */
+.site-title {
+	gap: 0.625rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	letter-spacing: -0.025em;
+	color: var(--kk-strong);
+}
+
+.site-title img {
+	height: 2rem;
+	width: auto;
+}
+
+/* Wide screens, as on tailwindcss.com: the text starts beside the sidebar, and a narrow
+   "On this page" column sits at the right edge. Starlight would centre the text and give the
+   column half of the spare width, most of it empty. */
+@media (min-width: 72rem) {
+	:root[data-has-sidebar] .content-panel {
+		padding-inline: 3rem;
+	}
+
+	:root[data-has-sidebar] .main-pane {
+		--sl-content-margin-inline: 0 auto;
+	}
+
+	:root[data-has-toc] .right-sidebar-container {
+		width: var(--kk-toc-width);
+	}
+
+	/* The "On this page" label lines up with the page's eyebrow. */
+	.right-sidebar-panel {
+		padding: 3.5rem 1.5rem 2rem;
+	}
+
+	.right-sidebar-panel .sl-container {
+		width: calc(var(--kk-toc-width) - 3rem);
+	}
+}
+
+/* A hatched strip between the sidebar and the page, as on tailwindcss.com. */
+@media (min-width: 50em) {
+	:root[data-has-sidebar] {
+		--sl-content-inline-start: calc(var(--sl-sidebar-width) + 2.5rem);
+	}
+
+	:root[data-has-sidebar] .main-frame::before {
+		content: "";
+		position: fixed;
+		inset-block: var(--sl-nav-height) 0;
+		inset-inline-start: var(--sl-sidebar-width);
+		width: 2.5rem;
+		border-inline-end: 1px solid var(--kk-line);
+		background-image: repeating-linear-gradient(315deg, var(--kk-hatch) 0 1px, transparent 0 50%);
+		background-size: 10px 10px;
+		background-attachment: fixed;
+		pointer-events: none;
+	}
+}
+
+/* Sidebar: mono group labels, links on a 1px rail, the current page marks the rail. */
+.sidebar-content {
+	padding-top: 2rem;
+}
+
+.sidebar-content .top-level > li + li {
+	margin-top: 2.25rem;
+}
+
+.sidebar-content summary {
+	padding: 0;
+}
+
+.sidebar-content .group-label .large {
+	font: 500 0.75rem/1.5rem var(--kk-font-mono);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--kk-muted);
+}
+
+.sidebar-content summary .caret {
+	color: var(--kk-muted);
+}
+
+.sidebar-content ul ul {
+	margin-top: 0.75rem;
+	border-inline-start: 1px solid var(--kk-line);
+}
+
+.sidebar-content ul ul li {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.sidebar-content a {
+	margin-inline-start: -1px;
+	padding: 0.25rem 0 0.25rem 1rem;
+	border-inline-start: 1px solid transparent;
+	border-radius: 0;
+	font-size: 0.875rem;
+	line-height: 1.5rem;
+	color: var(--kk-text);
+	transition:
+		color 120ms ease,
+		border-color 120ms ease;
+}
+
+.sidebar-content a:hover {
+	border-color: color-mix(in srgb, var(--kk-strong) 25%, transparent);
+	color: var(--kk-strong);
+}
+
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover,
+.sidebar-content a[aria-current="page"]:focus {
+	background: none;
+	border-color: var(--kk-strong);
+	color: var(--kk-strong);
+	font-weight: 600;
+}
+
+/* Page title (see PageTitle.astro for the eyebrow above it). */
+h1#_top {
+	margin-top: 0.25rem;
+	font-weight: 500;
+	letter-spacing: -0.025em;
+	text-wrap: balance;
+}
+
+.content-panel:first-of-type {
+	padding-top: 2.5rem;
+}
+
+/* Body copy. */
+.sl-markdown-content {
+	color: var(--kk-text);
+}
+
+.sl-markdown-content :is(h2, h3, h4) {
+	font-weight: 600;
+	letter-spacing: -0.025em;
+	color: var(--kk-strong);
+	text-wrap: balance;
+}
+
+.sl-markdown-content h2 {
+	margin-top: 3rem;
+}
+
+.sl-markdown-content h3 {
+	margin-top: 2rem;
+}
+
+.sl-markdown-content strong {
+	font-weight: 600;
+	color: var(--kk-strong);
+}
+
+/* Links: strong text, a thin violet underline. */
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-button)) {
+	font-weight: 600;
+	color: var(--kk-strong);
+	text-decoration-line: underline;
+	text-decoration-color: var(--kk-underline);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-button)):hover {
+	text-decoration-thickness: 2px;
+}
+
+/* Buttons in pages: pills, as on tailwindcss.com. */
+.sl-link-button {
+	min-height: 2.5rem;
+	padding: 0.5rem 1.125rem;
+	border: 0;
+	border-radius: 999px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	line-height: 1.5rem;
+	text-decoration: none;
+	transition: background-color 120ms ease;
+}
+
+.sl-link-button.primary {
+	background: var(--kk-button-bg);
+	color: var(--kk-button-text);
+}
+
+.sl-link-button.primary:hover {
+	background: var(--kk-button-hover);
+	color: var(--kk-button-text);
+}
+
+.sl-link-button:is(.secondary, .minimal) {
+	background: none;
+	box-shadow: var(--kk-ring);
+	color: var(--kk-strong);
+}
+
+.sl-link-button:is(.secondary, .minimal):hover {
+	background: var(--kk-surface);
+	color: var(--kk-strong);
+}
+
+/* Search: a pill in the header. */
+site-search > button {
+	border-radius: 999px;
+	border-color: var(--kk-line);
+	background: none;
+}
+
+/* Inline code: mono on a soft tint. It breaks only between words, never mid-name. */
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+	padding: 0.125rem 0.375rem;
+	border: 0;
+	border-radius: 0.375rem;
+	background: color-mix(in srgb, var(--kk-strong) 6%, transparent);
+	font-size: 0.85em;
+	font-weight: 500;
+	color: var(--kk-strong);
+	overflow-wrap: break-word;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+/* On wider screens a name such as `--write` never splits at its hyphen. Phones keep wrapping
+   so a long path can't push the page sideways. */
+@media (min-width: 50em) {
+	.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+		white-space: nowrap;
+	}
+}
+
+/* Table keys such as `set_command` stay on one line. */
+.sl-markdown-content td:first-child > code {
+	white-space: nowrap;
+}
+
+/* Code inside a link: the link underline is enough, no tint. */
+.sl-markdown-content a > code:not(:where(.not-content *)) {
+	padding: 0;
+	background: none;
+	color: inherit;
+}
+
+/* Numbered steps: the boxed 01, 02 of the Tailwind install guide. */
+.sl-steps {
+	--bullet-size: 1.75rem;
+}
+
+.sl-steps > li::before {
+	content: counter(steps-counter, decimal-leading-zero);
+	border: 1px solid color-mix(in srgb, var(--kk-strong) 45%, transparent);
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	font: 500 0.625rem / calc(var(--bullet-size) - 2px) var(--kk-font-mono);
+	letter-spacing: 0.1em;
+	color: var(--kk-strong);
+}
+
+.sl-steps > li::after {
+	background: var(--kk-line);
+}
+
+/* Tabs: plain text, the open one underlined in the text colour. */
+starlight-tabs [role="tablist"] {
+	border-bottom: 1px solid var(--kk-line);
+}
+
+starlight-tabs .tab [role="tab"] {
+	--sl-tab-color-border: transparent;
+	padding-inline: 0.75rem;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: var(--kk-muted);
+	box-shadow: 0 1px 0 var(--sl-tab-color-border);
+}
+
+starlight-tabs .tab [role="tab"]:hover {
+	color: var(--kk-strong);
+}
+
+starlight-tabs .tab [role="tab"][aria-selected="true"] {
+	--sl-tab-color-border: var(--kk-strong);
+	color: var(--kk-strong);
+}
+
+/* Notes: a quiet ringed panel with a mono label. */
+.starlight-aside {
+	border: 0;
 	border-radius: 0.75rem;
-	box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.25);
+	background: var(--kk-surface);
+	box-shadow: var(--kk-ring);
+	color: var(--kk-text);
+}
+
+.starlight-aside__title {
+	font: 600 0.75rem/1.5rem var(--kk-font-mono);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.starlight-aside__icon {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* Right-hand "On this page". */
+starlight-toc h2,
+mobile-starlight-toc .toggle {
+	font-family: var(--kk-font-mono);
+	font-weight: 500;
+	font-size: 0.75rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--kk-muted);
+}
+
+/* Links start at the label's edge; nested headings keep Starlight's 1rem step. */
+starlight-toc a {
+	--pad-inline: 0;
+	color: var(--kk-muted);
+}
+
+starlight-toc a:hover,
+starlight-toc a[aria-current="true"] {
+	color: var(--kk-strong);
+}
+
+/* Prev / next: compact, like Tailwind's pager. A small muted label over a body-size title. */
+.pagination-links {
+	gap: 0.75rem;
+}
+
+.pagination-links a {
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	border-radius: 0.75rem;
+	border-color: var(--kk-line);
+	box-shadow: none;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--kk-muted);
+}
+
+.pagination-links a svg {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+}
+
+.pagination-links .link-title {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--kk-strong);
+}
+
+.pagination-links a:hover {
+	border-color: color-mix(in srgb, var(--kk-strong) 30%, transparent);
+}
+
+/* Screenshots of the app windows, set in a hatched frame like Tailwind's previews. */
+.sl-markdown-content .shot {
+	display: block;
+	margin-block: 2rem;
+}
+
+.shot__frame {
+	padding: 0.5rem;
+	border-radius: 1rem;
+	box-shadow: var(--kk-ring);
+	background-image: repeating-linear-gradient(315deg, var(--kk-hatch) 0 1px, transparent 0 50%);
+	background-size: 10px 10px;
+}
+
+.shot__frame img {
+	display: block;
 	width: 100%;
 	height: auto;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 0 0 1px var(--kk-line),
+		0 8px 24px -12px rgb(0 0 0 / 0.35);
+}
+
+.shot figcaption {
+	margin-top: 0.75rem;
+	font-size: 0.875rem;
+	color: var(--kk-muted);
+}
+
+/* Show the light screenshot in light mode, the dark one in dark mode. */
+:root[data-theme="light"] .only-dark,
+:root:not([data-theme="light"]) .only-light {
+	display: none;
+}
+
+/* The settings screenshot is cut off at the bottom; fade it out instead of a hard edge. */
+.shot--cut img {
+	mask-image: linear-gradient(to bottom, #000 78%, transparent);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+/* Keep tab labels on one line; the tab row scrolls sideways on narrow screens. */
+starlight-tabs [role="tab"] {
+	white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+	starlight-tabs .tab [role="tab"] {
+		padding-inline: 0.5rem;
+	}
+}
+
+/* Code blocks, as on tailwindcss.com: an outer frame with a label row (title left, copy button
+   right) around the code on an inset panel. The panel colours are set in astro.config.mjs. */
+.expressive-code .frame {
+	padding: 0.25rem;
+	background: #0f1117;
+	border: 1px solid rgb(255 255 255 / 0.08);
+	border-radius: 0.875rem;
+}
+
+.expressive-code .frame.is-terminal .header,
+.expressive-code .frame.has-title:not(.is-terminal) .header {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	min-height: 2.25rem;
+	padding: 0 3rem 0 0.75rem;
+	background: none;
+	border: 0;
+	font-weight: 400;
+	color: #99a1af;
+}
+
+.expressive-code .frame .header::before,
+.expressive-code .frame .header::after,
+.expressive-code .frame.has-title:not(.is-terminal) .title::after {
+	content: none;
+}
+
+/* The end padding keeps the last glyph's overhang (the hook of an "f", the top of an "l")
+   inside the title box, which clips its overflow. */
+.expressive-code .frame.has-title:not(.is-terminal) .title {
+	margin: 0;
+	padding: 0 0.125rem 0 0;
+	background: none;
+	border: 0;
+	color: inherit;
+}
+
+.expressive-code .frame pre,
+.expressive-code .frame.has-title pre,
+.expressive-code .frame.is-terminal pre {
+	overflow-x: auto;
+	border: 1px solid rgb(255 255 255 / 0.06);
+	border-radius: 0.625rem;
+}
+
+.expressive-code .frame.has-title code,
+.expressive-code .frame.is-terminal code {
+	border-radius: 0.625rem;
+}
+
+/* A config.toml label shows where the file lives on hover or keyboard focus. The tip sits
+   outside the title, which clips its overflow. Code frames are dark in both themes. */
+.expressive-code .frame .header:has(.kk-path-tip) {
+	position: relative;
+}
+
+.expressive-code .frame .header:has(.kk-path-tip) .title {
+	cursor: help;
+	text-decoration: underline dotted rgb(255 255 255 / 0.3);
+	text-underline-offset: 0.25em;
+	outline: none;
+}
+
+.expressive-code .frame .header:has(.kk-path-tip) .title:focus-visible {
+	border-radius: 0.25rem;
+	box-shadow: 0 0 0 2px var(--sl-color-accent);
+}
+
+.expressive-code .kk-path-tip {
+	position: absolute;
+	z-index: 10;
+	inset-block-start: calc(100% - 0.125rem);
+	inset-inline-start: 0.5rem;
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 0.375rem 1rem;
+	padding: 0.625rem 0.75rem;
+	background: #030712;
+	border: 1px solid rgb(255 255 255 / 0.12);
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+	white-space: nowrap;
+	opacity: 0;
+	translate: 0 -0.25rem;
+	pointer-events: none;
+	transition:
+		opacity 150ms ease-out,
+		translate 150ms ease-out;
+}
+
+.expressive-code .title:is(:hover, :focus-visible) ~ .kk-path-tip {
+	opacity: 1;
+	translate: 0 0;
+}
+
+.expressive-code .kk-path-row {
+	display: contents;
+}
+
+.expressive-code .kk-path-os {
+	color: #99a1af;
+}
+
+.expressive-code .kk-path-tip code {
+	font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+	font-size: 0.75rem;
+	color: #e5e7eb;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.expressive-code .kk-path-tip {
+		transition: none;
+		translate: none;
+	}
+}
+
+/* The copy button sits in the label row and stays visible. */
+.expressive-code .frame.has-title .copy,
+.expressive-code .frame.is-terminal .copy {
+	inset-block-start: 0.375rem;
+	inset-inline-end: 0.5rem;
+}
+
+.expressive-code .frame .copy {
+	inset-block-start: 0.75rem;
+	inset-inline-end: 0.75rem;
+}
+
+.expressive-code .frame.has-title .copy button,
+.expressive-code .frame.is-terminal .copy button {
+	background: none;
+}
+
+/* Just the icon, no box around it. */
+.expressive-code .copy button::before {
+	content: none;
+}
+
+.expressive-code .copy button,
+.expressive-code .frame:hover .copy button:not(:hover) {
+	opacity: 0.6;
+}
+
+.expressive-code .copy button:hover,
+.expressive-code .copy button:focus-visible {
+	opacity: 1;
 }

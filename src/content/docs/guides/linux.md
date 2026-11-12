@@ -147,22 +147,23 @@ A systemd user service sees only the environment of the systemd user manager, no
 
 To fix it, import the variables before the service starts. In Hyprland:
 
-```text
+```text title="~/.config/hypr/hyprland.conf"
 exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE
 ```
 
 In sway:
 
-```text
+```text title="~/.config/sway/config"
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
 ```
 
 Many compositors don't start `graphical-session.target` at all. In that case, start the daemon from the compositor config instead of the service. The daemon refuses to run twice, so this is safe even with the service installed:
 
-```text
-# Hyprland (hyprland.conf)
+```text title="~/.config/hypr/hyprland.conf"
 exec-once = kakemono daemon
-# sway (config)
+```
+
+```text title="~/.config/sway/config"
 exec kakemono daemon
 ```
 
@@ -180,15 +181,15 @@ The picker is a small window with the title `kakemono-picker`. On X11, macOS, an
 
 `kakemono doctor` prints the rules for Hyprland, sway, and niri when it detects one of them.
 
-sway (`~/.config/sway/config`):
+sway:
 
-```text
+```text title="~/.config/sway/config"
 for_window [title="^kakemono-picker$"] floating enable, sticky enable, border none, move position center
 ```
 
-Hyprland (`~/.config/hypr/hyprland.conf`):
+Hyprland:
 
-```text
+```text title="~/.config/hypr/hyprland.conf"
 windowrulev2 = float, title:^(kakemono-picker)$
 windowrulev2 = pin, title:^(kakemono-picker)$
 windowrulev2 = noborder, title:^(kakemono-picker)$
@@ -197,9 +198,9 @@ windowrulev2 = size 100% 160, title:^(kakemono-picker)$
 windowrulev2 = move 0 100%-160, title:^(kakemono-picker)$
 ```
 
-niri (`~/.config/niri/config.kdl`):
+niri:
 
-```text
+```text title="~/.config/niri/config.kdl"
 window-rule {
     match title="^kakemono-picker$"
     open-floating true
@@ -228,7 +229,7 @@ If the app is already running, it keeps its own environment. Quit the app first.
 
 To set the variable for every start in a session that starts through systemd, such as GNOME or KDE Plasma, add it to `~/.config/environment.d/kakemono.conf`:
 
-```text
+```text title="~/.config/environment.d/kakemono.conf"
 WEBKIT_DISABLE_DMABUF_RENDERER=1
 ```
 

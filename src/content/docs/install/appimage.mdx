@@ -1,0 +1,25 @@
+---
+title: Install the AppImage
+description: Run kakemono on any Linux distribution with the AppImage. Nothing to install.
+---
+
+import { LinkButton } from '@astrojs/starlight/components';
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+import LinuxDesktops from '../../../components/install/LinuxDesktops.mdx';
+
+The AppImage works on any Linux distribution and runs without installing. Download it:
+
+<LinkButton href="https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.AppImage">Download the AppImage</LinkButton>
+
+Then make it runnable and start it, from the folder you downloaded it to:
+
+```sh
+chmod +x kakemono-linux-x64.AppImage
+./kakemono-linux-x64.AppImage
+```
+
+The AppImage doesn't add kakemono to your app launcher. Start it the same way next time, or use the [.deb](/install/debian/) or [.rpm](/install/fedora/) package if your system takes one.
+
+<LinuxDesktops />
+
+<FirstOpen />

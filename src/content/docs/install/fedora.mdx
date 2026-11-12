@@ -1,0 +1,29 @@
+---
+title: Install on Fedora or openSUSE
+description: Install the kakemono .rpm package on Fedora, openSUSE and other systems that use .rpm packages.
+---
+
+import { LinkButton } from '@astrojs/starlight/components';
+import FirstOpen from '../../../components/install/FirstOpen.mdx';
+import LinuxDesktops from '../../../components/install/LinuxDesktops.mdx';
+
+Download the package and open it to install it with your software center:
+
+<LinkButton href="https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.rpm">Download the .rpm</LinkButton>
+
+Or install it from a terminal:
+
+```sh
+# Fedora
+sudo dnf install https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.rpm
+
+# openSUSE
+curl -LO https://github.com/RielJ/kakemono/releases/latest/download/kakemono-linux-x64.rpm
+sudo zypper install ./kakemono-linux-x64.rpm
+```
+
+Then open **kakemono** from your app launcher.
+
+<LinuxDesktops />
+
+<FirstOpen />

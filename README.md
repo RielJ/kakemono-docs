@@ -8,16 +8,19 @@ every push.
 
 ## Work on it
 
-You need Node.js 22.23.4 or newer.
+You need [Bun](https://bun.sh) and Node.js 24. Bun installs the packages and runs the scripts; Astro itself runs on Node.
 
 ```sh
-npm install
-npm run dev       # http://localhost:4321
-npm run build     # builds to dist/ and checks every internal link
-npm run preview   # serves dist/
+bun install
+bun run dev       # http://localhost:4321
+bun run build     # builds to dist/ and checks every internal link
+bun run preview   # serves dist/
+bun run lint      # oxlint
+bun run fmt       # oxfmt; formats code and CSS, not Markdown
+bun run check     # lint, format check and build, as CI would
 ```
 
-`npm run build` fails on a broken internal link or `#anchor`, through
+`bun run build` fails on a broken internal link or `#anchor`, through
 [starlight-links-validator](https://github.com/HiDeoo/starlight-links-validator).
 
 ## Layout

@@ -1,0 +1,429 @@
+---
+// A pretend desktop with kakemono's picker strip along the bottom.
+// Clicking a thumbnail (or arrow keys + Enter, as in the real picker) fades in that wallpaper.
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { wallpapers } from '../data/wallpapers';
+import icon from '../assets/kakemono-icon-dark.png';
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/wallpapers/*.jpg', { eager: true });
+const SIZES = '(min-width: 1200px) 1120px, 94vw';
+
+const items = await Promise.all(
+	wallpapers.map(async (w) => {
+		const src = files[`../assets/wallpapers/${w.slug}.jpg`]?.default;
+		if (!src) throw new Error(`Showcase: missing src/assets/wallpapers/${w.slug}.jpg`);
+		const full = await getImage({ src, widths: [960, 1440, 1920, 2400], format: 'webp', quality: 78 });
+		const thumb = await getImage({ src, width: 336, format: 'webp', quality: 72 });
+		return { ...w, full: full.src, srcset: full.srcSet.attribute, thumb: thumb.src };
+	}),
+);
+const first = items[0]!;
+---
+
+<div class="showcase" data-showcase>
+	<div class="desk">
+		<div class="desk__walls">
+			<img
+				class="desk__wall"
+				src={first.full}
+				srcset={first.srcset}
+				sizes={SIZES}
+				alt={first.title}
+				fetchpriority="high"
+				decoding="async"
+			/>
+		</div>
+
+		<div class="desk__bar" aria-hidden="true">
+			<img src={icon.src} alt="" width="16" height="16" />
+			<span>9:41</span>
+		</div>
+
+		<div class="picker" role="group" aria-label="Wallpapers">
+			<div class="picker__strip" data-strip>
+				{
+					items.map((w, i) => (
+						<button
+							type="button"
+							class="picker__thumb"
+							aria-pressed={i === 0 ? 'true' : 'false'}
+							tabindex={i === 0 ? 0 : -1}
+							data-index={i}
+							data-full={w.full}
+							data-srcset={w.srcset}
+							data-title={w.title}
+							data-author={w.author}
+							data-source={w.source}
+						>
+							<img src={w.thumb} alt="" width="168" height="105" loading={i < 6 ? 'eager' : 'lazy'} decoding="async" />
+							<span class="picker__label">{w.title}</span>
+						</button>
+					))
+				}
+			</div>
+		</div>
+	</div>
+
+	<div class="showcase__below">
+		<p class="showcase__hint">
+			Try it: click a picture to make it the wallpaper. The arrow keys and Enter work too, as in the app.
+		</p>
+		<p class="showcase__credit" aria-live="polite">
+			<a data-credit href={first.source}>{first.title}</a>, photo by <span data-credit-author>{first.author}</span> (CC0)
+		</p>
+	</div>
+</div>
+
+<style>
+	.showcase {
+		--strip-bg: rgb(24 23 22 / 0.9);
+	}
+
+	.desk {
+		position: relative;
+		aspect-ratio: 16 / 10;
+		overflow: hidden;
+		border-radius: 0.75rem;
+		background: #0d0c0b;
+		box-shadow:
+			0 0 0 1px var(--kk-line),
+			0 24px 48px -24px rgb(0 0 0 / 0.5);
+		isolation: isolate;
+	}
+
+	/* :global because the script creates new wallpaper <img>s, which don't get Astro's scoped class. */
+	.desk__walls,
+	.desk__walls :global(.desk__wall) {
+		position: absolute;
+		inset: 0;
+	}
+
+	.desk__walls :global(.desk__wall) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition:
+			opacity 700ms var(--kk-ease-out),
+			transform 1100ms var(--kk-ease-out),
+			filter 700ms var(--kk-ease-out);
+	}
+
+	/* A new wallpaper starts slightly zoomed and soft, then settles. */
+	.desk__walls :global(.desk__wall.is-entering) {
+		opacity: 0;
+		transform: scale(1.04);
+		filter: blur(12px);
+	}
+
+	/* A pretend menu bar, so the picture reads as a desktop. */
+	.desk__bar {
+		position: absolute;
+		inset: 0 0 auto;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 12px;
+		height: 26px;
+		padding-inline: 14px;
+		font: 500 12px/1 var(--kk-font-body);
+		color: #fff;
+		background: rgb(0 0 0 / 0.22);
+		text-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+	}
+
+	.desk__bar img {
+		width: 16px;
+		height: 16px;
+	}
+
+	/* The picker strip, drawn like the real one: dark panel, 16:10 thumbnails, a ring on the current one. */
+	.picker {
+		position: absolute;
+		left: 50%;
+		bottom: 3.5%;
+		width: min(92%, 980px);
+		translate: -50% 0;
+		padding: 8px;
+		border-radius: 14px;
+		background: var(--strip-bg);
+		box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.6);
+	}
+
+	.picker__strip {
+		display: flex;
+		gap: 8px;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+		overscroll-behavior-x: contain;
+	}
+
+	.picker__strip::-webkit-scrollbar {
+		display: none;
+	}
+
+	.picker__thumb {
+		position: relative;
+		flex: 0 0 clamp(96px, 15.5%, 168px);
+		aspect-ratio: 16 / 10;
+		padding: 0;
+		border: 0;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #2a2826;
+		cursor: pointer;
+		scroll-snap-align: start;
+		outline: 2px solid transparent;
+		outline-offset: -2px;
+		transition: outline-color 150ms ease;
+	}
+
+	.picker__thumb img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 150ms var(--kk-ease-out);
+	}
+
+	.picker__thumb[aria-pressed='true'] {
+		outline-color: #fff;
+	}
+
+	.picker__thumb:focus-visible {
+		outline-color: var(--kk-accent);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.picker__thumb:hover img {
+			transform: scale(1.04);
+		}
+	}
+
+	.picker__thumb:active img {
+		transform: scale(0.96);
+	}
+
+	.picker__label {
+		position: absolute;
+		inset: auto 0 0;
+		padding: 14px 6px 4px;
+		font: 500 11px/1.2 var(--kk-font-body);
+		color: #fff;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		background: linear-gradient(to top, rgb(0 0 0 / 0.7), transparent);
+		opacity: 0;
+	}
+
+	.picker__thumb[aria-pressed='true'] .picker__label {
+		opacity: 1;
+	}
+
+	/* While the full picture downloads: a thin bar under the thumbnail. Delayed, so fast loads don't flash it. */
+	.picker__thumb::after {
+		content: '';
+		position: absolute;
+		inset: auto 0 0;
+		height: 3px;
+		background: var(--kk-accent);
+		transform-origin: left;
+		transform: scaleX(0);
+		opacity: 0;
+	}
+
+	.picker__thumb[data-loading]::after {
+		opacity: 1;
+		animation: load 1.2s linear 150ms infinite;
+	}
+
+	@keyframes load {
+		from {
+			transform: scaleX(0);
+		}
+		to {
+			transform: scaleX(1);
+		}
+	}
+
+	.showcase__below {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 4px 24px;
+		margin-top: 0.75rem;
+		padding-inline: 0.25rem;
+		font-size: 0.8125rem;
+		color: var(--kk-muted);
+	}
+
+	.showcase__below p {
+		margin: 0;
+	}
+
+	.showcase__credit a {
+		color: inherit;
+		text-underline-offset: 0.2em;
+	}
+
+	/* On a phone the strip goes under the picture; overlaid thumbnails would be too small to tap. */
+	@media (max-width: 640px) {
+		.desk {
+			overflow: visible;
+			aspect-ratio: auto;
+			background: none;
+			box-shadow: none;
+		}
+
+		.desk__walls {
+			position: relative;
+			aspect-ratio: 16 / 10;
+			overflow: hidden;
+			border-radius: 12px;
+		}
+
+		.desk__bar {
+			display: none;
+		}
+
+		.picker {
+			position: static;
+			width: auto;
+			translate: none;
+			margin-top: 8px;
+		}
+
+		.picker__thumb {
+			flex-basis: 30%;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.desk__walls :global(.desk__wall) {
+			transition: opacity 300ms ease;
+		}
+
+		.desk__walls :global(.desk__wall.is-entering) {
+			transform: none;
+			filter: none;
+		}
+
+		.picker__thumb img {
+			transition: none;
+		}
+
+		.picker__thumb[data-loading]::after {
+			animation: none;
+			transform: scaleX(1);
+		}
+	}
+</style>
+
+<script>
+	const SIZES = '(min-width: 1200px) 1120px, 94vw';
+
+	for (const root of document.querySelectorAll<HTMLElement>('[data-showcase]')) {
+		const walls = root.querySelector<HTMLElement>('.desk__walls');
+		const strip = root.querySelector<HTMLElement>('[data-strip]');
+		const credit = root.querySelector<HTMLAnchorElement>('[data-credit]');
+		const author = root.querySelector<HTMLElement>('[data-credit-author]');
+		if (!walls || !strip || !credit || !author) continue;
+		const buttons = [...strip.querySelectorAll<HTMLButtonElement>('button[data-index]')];
+
+		let current = 0;
+		let latest = 0; // the newest request wins when clicks overlap
+
+		const loadImage = (b: HTMLButtonElement) => {
+			const img = new Image();
+			img.sizes = SIZES;
+			img.srcset = b.dataset.srcset ?? '';
+			img.src = b.dataset.full ?? '';
+			img.decoding = 'async';
+			return img;
+		};
+
+		// Fetch the full pictures once the visitor starts using the strip, not on page load.
+		let preloaded = false;
+		const preload = () => {
+			if (preloaded) return;
+			preloaded = true;
+			buttons.forEach((b, i) => i !== current && loadImage(b));
+		};
+		strip.addEventListener('pointerenter', preload, { once: true });
+		strip.addEventListener('focusin', preload, { once: true });
+		strip.addEventListener('touchstart', preload, { once: true, passive: true });
+
+		const show = async (i: number) => {
+			const b = buttons[i];
+			if (!b || i === current) return;
+			const request = ++latest;
+			current = i;
+			buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+			credit.textContent = b.dataset.title ?? '';
+			credit.href = b.dataset.source ?? '#';
+			author.textContent = b.dataset.author ?? '';
+
+			const img = loadImage(b);
+			img.className = 'desk__wall is-entering';
+			img.alt = b.dataset.title ?? '';
+			b.dataset.loading = '';
+			try {
+				await img.decode();
+			} catch {
+				// Show it anyway; the browser keeps loading.
+			}
+			delete b.dataset.loading;
+			if (request !== latest) return;
+
+			walls.append(img);
+			img.getBoundingClientRect(); // commit the start state before the transition
+			img.classList.remove('is-entering');
+			img.addEventListener('transitionend', (e) => {
+				if (e.propertyName !== 'opacity') return;
+				// Drop the pictures underneath once this one covers them.
+				while (img.previousElementSibling) img.previousElementSibling.remove();
+			});
+		};
+
+		const focusAt = (i: number) => {
+			const n = Math.max(0, Math.min(buttons.length - 1, i));
+			buttons.forEach((b, j) => (b.tabIndex = j === n ? 0 : -1));
+			buttons[n]?.focus();
+		};
+
+		buttons.forEach((b, i) =>
+			b.addEventListener('click', () => {
+				focusAt(i);
+				void show(i);
+			}),
+		);
+
+		// Roving focus, like the app's picker: arrows move, Enter or Space sets.
+		strip.addEventListener('keydown', (e) => {
+			const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+			if (at < 0) return;
+			const to = { ArrowRight: at + 1, ArrowDown: at + 1, ArrowLeft: at - 1, ArrowUp: at - 1, Home: 0, End: buttons.length - 1 }[e.key];
+			if (to === undefined) return;
+			e.preventDefault();
+			focusAt(to);
+		});
+
+		// A mouse wheel scrolls the strip sideways, until the strip reaches its end.
+		strip.addEventListener(
+			'wheel',
+			(e) => {
+				if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+				const max = strip.scrollWidth - strip.clientWidth;
+				const atStart = strip.scrollLeft <= 0 && e.deltaY < 0;
+				const atEnd = strip.scrollLeft >= max - 1 && e.deltaY > 0;
+				if (max <= 0 || atStart || atEnd) return;
+				e.preventDefault();
+				strip.scrollLeft += e.deltaY;
+			},
+			{ passive: false },
+		);
+	}
+</script>

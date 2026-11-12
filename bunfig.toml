@@ -1,0 +1,3 @@
+[install]
+# Pin exact versions, as the kakemono app does.
+exact = true

@@ -13,7 +13,7 @@ The kakemono app is not signed, so macOS calls it "damaged" until you clear the 
 xattr -dr com.apple.quarantine /Applications/kakemono.app
 ```
 
-The Homebrew cask clears the flag for you. See [Install on macOS](/getting-started/install/#macos).
+The Homebrew cask clears the flag for you. See [Install on a Mac](/install/mac/).
 
 ## Windows SmartScreen warns that the publisher is unknown
 
@@ -83,7 +83,7 @@ If a command can't reach the daemon, it exits with code 1 and says how to start 
 kakemono daemon
 ```
 
-To start the daemon at every login, see [Start the daemon at login](/getting-started/first-start/#start-the-daemon-at-login).
+To start the daemon at every login, see [Start the daemon at login](/install/other/#start-the-daemon-at-login).
 
 ## Where the logs are
 
