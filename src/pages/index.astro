@@ -10,10 +10,27 @@ import InstallCards from '../components/install/InstallCards.astro';
 import wordmarkDark from '../assets/kakemono-wordmark-dark.png';
 import wordmarkLight from '../assets/kakemono-wordmark-light.png';
 
-const title = 'kakemono: a new wallpaper whenever you want one';
+const title = 'kakemono: free wallpaper manager app for Mac, Windows and Linux';
 const description =
-	'A small, free app for Mac, Windows and Linux that finds wallpapers on Wallhaven, Unsplash, Reddit, Bing and NASA, or in your own folders, and puts them on your desktop.';
+	'kakemono is a free wallpaper manager for Mac, Windows and Linux. It finds wallpapers on Wallhaven, Unsplash, Reddit, Bing, NASA or any web page, or in your own folders, and changes your desktop on a timer.';
 const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://kakemono.rielj.xyz';
+// Tells search engines this page is about an app (name, systems, price), so results can show it as one.
+const softwareApp = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'kakemono',
+	applicationCategory: 'DesktopEnhancementApplication',
+	operatingSystem: 'macOS, Windows, Linux',
+	description,
+	url: `${site}/`,
+	image: `${site}/og.png`,
+	downloadUrl: `${site}/install/`,
+	license: 'https://github.com/RielJ/kakemono/blob/main/LICENSE',
+	isAccessibleForFree: true,
+	offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+	author: { '@type': 'Person', name: 'Riel Joseph C. Bulaybulay', url: 'https://rielj.xyz' },
+	sameAs: ['https://github.com/RielJ/kakemono', 'https://aur.archlinux.org/packages/kakemono-bin'],
+};
 ---
 
 <!doctype html>
@@ -35,6 +52,7 @@ const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://kakemono.riel
 		<meta property="og:image:height" content="640" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:image" content={`${site}/og.png`} />
+		<script type="application/ld+json" set:html={JSON.stringify(softwareApp)} />
 		<!-- Same theme choice as the docs (Starlight stores it), else the system's. Runs before paint. -->
 		<script is:inline>
 			(() => {
@@ -82,10 +100,10 @@ const site = Astro.site?.toString().replace(/\/$/, '') ?? 'https://kakemono.riel
 		<div class="frame">
 			<main>
 				<section class="hero">
-					<p class="kk-eyebrow ruled">Wallpaper app for Mac, Windows and Linux</p>
+					<p class="kk-eyebrow ruled">Wallpaper manager for Mac, Windows and Linux</p>
 					<h1 class="ruled">A new wallpaper whenever you want one.</h1>
 					<p class="lede ruled">
-						kakemono is a small, free app. It finds wallpapers on Wallhaven, Unsplash, Reddit, Bing and NASA, or in your own
+						kakemono is a small, free wallpaper manager. It finds wallpapers on Wallhaven, Unsplash, Reddit, Bing and NASA, or in your own
 						folders, and puts them on your desktop.
 					</p>
 					<div class="actions ruled">
